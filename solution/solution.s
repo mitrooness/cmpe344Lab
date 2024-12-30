@@ -17,17 +17,20 @@ main:
 
     # Call procedure to calculate average
     jal ra, calculate_average
-    sw a0, average           # Store calculated average in memory
+    la t2, average           # Load the address of the average variable
+    sw a0, 0(t2)             # Store calculated average in memory
 
     # Call procedure to find the highest score
     la a0, scores            # Load base address of the scores array
     lw a1, num_scores        # Load number of scores
     jal ra, find_highest
-    sw a0, highest           # Store highest score in memory
+    la t2, highest           # Load the address of the highest variable
+    sw a0, 0(t2)             # Store highest score in memory
 
     # Call procedure to check pass/fail
     lw a0, average           # Load the calculated average
     lw a1, pass_mark         # Load the pass mark
+    lw a2, highest           # Load the highest score
     jal ra, check_pass_fail
 
     # Exit program
@@ -88,8 +91,31 @@ fail:
 print_message:
     li a7, 4                 # Syscall to print string
     ecall
+
+    # Print average score
+    la a0, grade_msg         # Load "Your grade is: " message
+    li a7, 4                 # Syscall to print string
+    ecall
+
+    # Print the average score
+    lw a0, average           # Load average score
+    li a7, 1                 # Syscall to print integer
+    ecall
+
+    # Print highest score
+    la a0, best_msg          # Load "Your best grade is: " message
+    li a7, 4                 # Syscall to print string
+    ecall
+
+    # Print the highest score
+    mv a0, a2                # Move highest score to a0
+    li a7, 1                 # Syscall to print integer
+    ecall
+
     ret
 
 .data
-pass_msg:   .asciiz "You passed the class, congrats !! \n"
-fail_msg:   .asciiz "You failed :(( !\n"
+pass_msg:   .asciz "You passed the class, congrats !! \n"
+fail_msg:   .asciz "You failed :(( !\n"
+grade_msg:  .asciz "Your grade is: "
+best_msg:   .asciz "\n Your best grade is: "
